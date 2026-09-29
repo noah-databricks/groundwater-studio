@@ -1,0 +1,141 @@
+# Groundwater Studio (MODFLOW OS) as a Declarative Automation Bundle.
+# Deploy with ./install.sh, which creates the Unity Catalog objects first and writes resources/app.yml
+# (the app and the workspace-specific parts it depends on: Lakebase, served models).
+bundle:
+  name: groundwater-studio
+
+include:
+  - resources/*.yml
+
+sync:
+  exclude:
+    - engines
+    - data
+    - examples
+    - installer
+    - ui/node_modules
+    - .install
+
+variables:
+  catalog:
+    description: Unity Catalog catalog that holds the schema
+  schema:
+    description: Schema for the model inputs, run records and volumes
+    default: groundwater_studio
+  warehouse_id:
+    description: SQL warehouse the app, jobs and the agent's Python sandbox use
+  app_name:
+    description: Name of the Databricks App (and prefix of its jobs)
+    default: groundwater-studio
+
+resources:
+  jobs:
+    modflow_ensemble:
+      name: ${var.app_name}-ensemble
+      description: Monte Carlo MODFLOW 6 ensemble fanned out across Spark tasks (triggered from Groundwater Studio)
+      max_concurrent_runs: 5
+      parameters:
+        - {name: ensemble_id, default: manual-test}
+        - {name: n, default: "64"}
+        - {name: config_json, default: "{}"}
+        - {name: run_by, default: ""}
+        - {name: label, default: ""}
+      tasks:
+        - task_key: ensemble
+          environment_key: modflow
+          spark_python_task:
+            python_file: ./src/ensemble_job.py
+            parameters:
+              - --ensemble_id={{job.parameters.ensemble_id}}
+              - --n={{job.parameters.n}}
+              - --config_json={{job.parameters.config_json}}
+              - --run_by={{job.parameters.run_by}}
+              - --label={{job.parameters.label}}
+              - --job_run_id={{job.run_id}}
+              - --catalog=${var.catalog}
+              - --schema=${var.schema}
+              - --experiment=${resources.experiments.studio.name}
+      environments:
+        - environment_key: modflow
+          spec:
+            environment_version: "4"
+            dependencies:
+              - flopy==3.11.0
+
+    modflow_scenario:
+      name: ${var.app_name}-scenario-run
+      description: "MODFLOW OS as a job step: resolve a scenario spec, run MODFLOW 6 on serverless as the job identity, file it to Delta + MLflow, publish the result as task values"
+      max_concurrent_runs: 20
+      parameters:
+        - {name: scenario, default: "{}"}
+        - {name: label, default: ""}
+        - {name: study_id, default: ""}
+      tasks:
+        - task_key: modflow
+          environment_key: modflow_os
+          spark_python_task:
+            python_file: ./jobs/modflow_task.py
+            parameters:
+              - --app_dir=${workspace.file_path}/app
+              - --scenario={{job.parameters.scenario}}
+              - --label={{job.parameters.label}}
+              - --study_id={{job.parameters.study_id}}
+              - --job_run_id={{job.run_id}}
+              - --catalog=${var.catalog}
+              - --schema=${var.schema}
+              - --warehouse_id=${var.warehouse_id}
+              - --experiment_id=${resources.experiments.studio.id}
+      environments:
+        - environment_key: modflow_os
+          spec:
+            environment_version: "4"
+            dependencies:
+              - flopy==3.11.0
+              - databricks-sdk>=0.60
+              - mlflow-skinny>=3.1
+              - fastapi
+              - python-multipart
+              - "mcp>=1.28,<2"
+              - httpx
+              - pyyaml
+
+    modflow_agent:
+      name: ${var.app_name}-agent-step
+      description: "A MODFLOW OS research agent as a job step: runs a prompt through Omnigent on a Databricks Sandbox (harness + Unity AI Gateway model of your choice) as the job's run-as identity, publishes the answer as task values. Set run_as to a service principal for unattended use."
+      max_concurrent_runs: 10
+      parameters:
+        - {name: prompt, default: "Describe the model and summarise the baseline in three sentences."}
+        - {name: harness, default: claude-sdk}
+        - {name: model, default: ""}
+        - {name: mode, default: auto}
+        - {name: study_id, default: ""}
+      tasks:
+        - task_key: agent
+          environment_key: agent
+          spark_python_task:
+            python_file: ./jobs/agent_task.py
+            parameters:
+              - --app_dir=${workspace.file_path}/app
+              - --app_name=${var.app_name}
+              - --prompt={{job.parameters.prompt}}
+              - --harness={{job.parameters.harness}}
+              - --model={{job.parameters.model}}
+              - --mode={{job.parameters.mode}}
+              - --study_id={{job.parameters.study_id}}
+      environments:
+        - environment_key: agent
+          spec:
+            environment_version: "4"
+            dependencies:
+              - databricks-sdk>=0.60
+              - fastapi
+              - httpx
+              - pyyaml
+
+  experiments:
+    studio:
+      name: /Users/${workspace.current_user.userName}/${var.app_name}
+
+targets:
+  default:
+    default: true

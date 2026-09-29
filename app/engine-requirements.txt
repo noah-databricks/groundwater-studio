@@ -1,0 +1,10 @@
+flopy==3.11.0
+databricks-sdk>=0.60
+mlflow-skinny>=3.1
+pandas
+numpy
+python-multipart
+fastapi
+mcp>=1.28,<2
+pyyaml
+httpx
