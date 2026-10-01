@@ -14,6 +14,11 @@ The bundled data is a **synthetic sample district**: a made-up irrigation area, 
 (`Farm 01 (synthetic)`), bores (`PB-`, `OB-`), licences (`SYN-WAL-`) and weather stations. It is there to show the
 workflow and is not anyone's real data. Your own models go in through the app's **Open a model** (upload).
 
+![Groundwater Studio architecture: browser, MCP and REST clients; the Databricks App with the MODFLOW OS tools, engines and the embedded Omnigent agent; the serverless SQL warehouse, Lakeflow Jobs, Unity AI Gateway and Lakebase; inputs, run records, volumes and MLflow in Unity Catalog](docs/architecture.png)
+
+Reads and files go through on behalf of the signed-in user, so Unity Catalog grants and masks apply per person.
+([SVG version](docs/architecture.svg))
+
 ## Install
 
 ```
@@ -123,5 +128,5 @@ src/, jobs/               shared model code, the Spark ensemble and the job step
 ui/                       front-end source (React + three.js; npm install && npm run build writes app/static/dist)
 engines/                  MODFLOW and PEST++ Linux executables (see engines/SOURCES.md)
 data/, examples/          synthetic sample district inputs, example model packages
-docs/TECHNICAL.md         how it works: identity model, build kit, calibration, agent, jobs
+docs/                     TECHNICAL.md (identity model, build kit, calibration, agent, jobs) and the architecture diagram
 ```
