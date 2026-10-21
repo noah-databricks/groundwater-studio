@@ -1,5 +1,6 @@
 import { rev as revL } from "../lib/rev";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { GeniePanel } from "../components/Genie";
 import { Icon } from "../components/Icon";
 import { api, source, type RunRow, type StudyDetail, type StudyRow } from "../api";
 
@@ -8,10 +9,11 @@ const when = (t: string) => new Date(t).toLocaleString("en-AU", { day: "numeric"
 
 export const ALL_RUNS = "all-runs";
 export const ALL_ENSEMBLES = "all-ensembles";
+export const ASK_GENIE = "ask-genie";
 
 /** The record: every filed run, and the studies that group runs around a question, whoever filed them. */
-export default function StudiesSheet({ runs, open, onOpen, onLoadRun, register, ensembles, onOpenEnsemble, draftRequest = 0 }: {
-  onOpenEnsemble: (id: string) => void; runs: RunRow[]; open: string | null; onOpen: (id: string | null) => void; onLoadRun: (r: RunRow) => void; register: ReactNode; ensembles: ReactNode; draftRequest?: number;
+export default function StudiesSheet({ runs, open, onOpen, onLoadRun, register, ensembles, onOpenEnsemble, draftRequest = 0, genie = null }: {
+  genie?: { url?: string } | null; onOpenEnsemble: (id: string) => void; runs: RunRow[]; open: string | null; onOpen: (id: string | null) => void; onLoadRun: (r: RunRow) => void; register: ReactNode; ensembles: ReactNode; draftRequest?: number;
 }) {
   const [list, setList] = useState<StudyRow[] | null>(null);
   const [d, setD] = useState<StudyDetail | null>(null);
@@ -24,7 +26,7 @@ export default function StudiesSheet({ runs, open, onOpen, onLoadRun, register, 
     if (!open) onOpen(ALL_RUNS);
   }, [open, onOpen]);
   useEffect(() => {
-    if (!open || open === ALL_RUNS || open === ALL_ENSEMBLES) { setD(null); return; }
+    if (!open || open === ALL_RUNS || open === ALL_ENSEMBLES || open === ASK_GENIE) { setD(null); return; }
     let live = true;
     const load = () => api.study(open).then((x) => live && setD(x)).catch((e) => live && setErr(e.message));
     load();
@@ -64,6 +66,14 @@ export default function StudiesSheet({ runs, open, onOpen, onLoadRun, register, 
               <span className="st-m">uncertainty for a scenario, on Spark</span>
             </button>
           </li>
+          {genie && (
+            <li>
+              <button className={open === ASK_GENIE ? "on" : ""} onClick={() => onOpen(ASK_GENIE)}>
+                <span className="st-t"><Icon name="chat" size={14} />Ask Genie</span>
+                <span className="st-m">questions about the record, in plain language</span>
+              </button>
+            </li>
+          )}
           <li className="st-sec">Studies</li>
           {draft && (
             <li className="st-new">
@@ -84,7 +94,8 @@ export default function StudiesSheet({ runs, open, onOpen, onLoadRun, register, 
         </ol>
         {open === ALL_RUNS && <article className="st-detail wide">{register}</article>}
         {open === ALL_ENSEMBLES && <article className="st-detail wide">{ensembles}</article>}
-        {d && open !== ALL_RUNS && open !== ALL_ENSEMBLES && (
+        {open === ASK_GENIE && genie && <article className="st-detail wide"><GeniePanel url={genie.url} /></article>}
+        {d && open !== ALL_RUNS && open !== ALL_ENSEMBLES && open !== ASK_GENIE && (
           <article className="st-detail">
             <div className="st-q"><span className="st-k">Question</span><p>{d.study.question}</p>
               <div className="muted small">Opened by {d.study.created_by.split("@")[0]} via {source(d.study.origin).label}, {when(d.study.created_at)} · {d.study.study_id}</div></div>

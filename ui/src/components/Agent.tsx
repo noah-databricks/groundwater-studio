@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ChatRef, Task } from "../types";
 import { api, type AgentEnsemble, type AgentItem, type AgentOptions, type AgentSessionRow, type AgentSnapshot, type Elicitation } from "../api";
+import { GenieResult } from "./Genie";
+import type { GenieAnswer } from "../types";
 import { Icon } from "./Icon";
 import { Markdown, filesIn } from "./Markdown";
 
@@ -297,6 +299,21 @@ function TaskCard({ args, res, t, links, shownRun }: { args: Record<string, unkn
   );
 }
 
+/** A question the agent put to the district's Genie Agent, with Genie's answer, its SQL and the first rows. */
+function GenieCard({ question, res, follow }: { question: string; res: GenieAnswer | null; follow: boolean }) {
+  const pending = !res || res.status === "pending";
+  return (
+    <div className={`ag-card genie ${pending ? "running" : res?.error ? "failed" : "finished"}`}>
+      <div className="ag-card-h">
+        <span className="ag-card-ic">{pending ? <span className="ag-spin" /> : <Icon name="chat" size={11} />}</span>
+        <span className="ag-card-t">{follow ? "Genie's answer" : <>Asked Genie: {question || res?.question}</>}</span>
+      </div>
+      {res && !pending && <div className="ag-genie"><GenieResult a={res} maxRows={6} /></div>}
+      {pending && <div className="ag-card-f"><span className="ag-card-m">{res ? "Genie is still working" : "Waiting for Genie"}</span></div>}
+    </div>
+  );
+}
+
 /** An ensemble the agent started, with where its Spark job is. */
 function EnsembleCard({ args, res, e, links }: { args: Record<string, unknown>; res: Record<string, unknown>; e?: AgentEnsemble; links: Links }) {
   const [, tick] = useState(0);
@@ -325,6 +342,7 @@ const ICON: Record<string, string> = {
   record_finding: "note", conclude_study: "check", list_models: "folder", inspect_model: "search", read_model_file: "file",
   run_model: "play", write_model: "save", build_model: "cube", edit_model_file: "save", delete_model: "x", delete_scenario: "x", list_ensembles: "spread",
   show_in_studio: "eye", run_python: "code", run_batch: "compare", view_image: "image", get_task: "clock", list_tasks: "clock", estimate_fidelity: "harness", get_run_series: "spread", list_uploads: "clip", read_upload: "clip",
+  ask_genie: "chat", get_genie_answer: "chat",
   get_model_build: "cube", edit_model: "brush", inspect_cell: "probe", zone_budget: "zone", get_section: "section", list_zones: "zone", save_zone: "zone", delete_zone: "x",
 };
 const MAPS: Record<string, string> = { land_use: "land use", depth_to_water: "depth to water", change: "change from baseline", reaches: "channel reaches" };
@@ -380,6 +398,8 @@ function describe(name: string, a: Record<string, unknown>, r: Record<string, un
     case "list_zones": return "Listed saved zones";
     case "save_zone": return <>Saved zone <b>{String(a.name ?? "")}</b>{r?.hectares ? `, ${Number(r.hectares).toLocaleString("en-AU")} ha` : ""}</>;
     case "delete_zone": return <>Deleted zone <b>{String(a.name ?? "")}</b></>;
+    case "ask_genie": return <>{done ? "Asked" : "Asking"} Genie: <b>{String(a.question ?? "")}</b></>;
+    case "get_genie_answer": return done ? "Collected Genie's answer" : "Waiting for Genie";
     case "view_image": return <>Looked at <b>{String(a.path ?? "").split("/").pop()}</b></>;
     case "show_in_studio": {
       const w = a as Record<string, unknown>;
@@ -408,6 +428,8 @@ function ToolRow({ call, out, links, shownRun, ensembles, tasks, retried }: { ca
     return <PackageCard name={String(res.package)} tool={name} res={res} onOpen={() => links.onOpenModel(String(res.package))} />;
   if (name === "run_python" && (!out || res))
     return <ScriptCard args={args} res={out ? res : null} links={links} retried={retried} />;
+  if ((name === "ask_genie" || name === "get_genie_answer") && !err)
+    return <GenieCard question={String(args.question ?? "")} res={out ? (res as GenieAnswer | null) : null} follow={name === "get_genie_answer"} />;
   if (name === "start_ensemble" && res?.ensemble_id && !err)
     return <EnsembleCard args={args} res={res} e={ensembles.find((e) => e.ensemble_id === res.ensemble_id)} links={links} />;
   const what = describe(name, args, res, !!out);

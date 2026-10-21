@@ -24,7 +24,8 @@ import Section from "./components/Section";
 import TitleBlock, { type Figure } from "./components/TitleBlock";
 import NotesSheet from "./sheets/NotesSheet";
 import RegisterSheet from "./sheets/RegisterSheet";
-import StudiesSheet, { ALL_ENSEMBLES, ALL_RUNS } from "./sheets/StudiesSheet";
+import StudiesSheet, { ALL_ENSEMBLES, ALL_RUNS, ASK_GENIE } from "./sheets/StudiesSheet";
+import OperationsSheet from "./sheets/OperationsSheet";
 import EnsemblesTable from "./sheets/EnsemblesTable";
 import { EnsemblePanel, FitScatter, MonthlyBand, type Vary } from "./components/Ensemble";
 import type { EnsembleDetail } from "./api";
@@ -33,13 +34,14 @@ import type { SavedScenario } from "./api";
 
 // two places to work (the model, and the record of what was run and why) plus the reference notes; uncertainty is a
 // way of running the model (an ensemble), shown on the model and filed in the record, not a place of its own
-const SHEETS = ["Model", "Record"] as const;
-const SHEET_ICONS = ["cube", "list"];
+const SHEETS = ["Model", "Record", "Operations"] as const;
+const SHEET_ICONS = ["cube", "list", "pin"];
 const RECORD = 1;
+const OPS = 2;
 // agent tools whose result belongs on the model: following them leaves the start page
 const MODEL_TOOLS = new Set(["render_map", "find_cells", "run_scenario", "run_batch", "run_model", "describe_model", "preview_scenario", "start_ensemble", "get_ensemble",
   "inspect_cell", "zone_budget", "get_section", "save_zone", "edit_model", "get_model_build"]);
-const ABOUT = 2;
+const ABOUT = 3;
 const KEYS: [string[], string][] = [
   [["W", "A", "S", "D"], "Pan (or the arrow keys)"], [["Q", "E"], "Turn"], [["+", "−"], "Zoom"], [["0"], "Reset the view"],
   [["P"], "Plan or axonometric"], [[",", "."], "Previous or next month"], [["V", "L", "C", "B"], "Select and inspect, land use, channels, bores"],
@@ -685,7 +687,7 @@ export default function App() {
   const show = (w: Shown) => {
     const f = fns.current;
     setHome(false);
-    if (w.sheet) setSheet(w.sheet === "record" ? RECORD : 0);
+    if (w.sheet) setSheet(w.sheet === "record" ? RECORD : w.sheet === "operations" ? OPS : 0);
     else setSheet(0);
     if (w.run_id) f.openAgentRun(w.run_id);
     if (w.ensemble) void f.openEnsemble(w.ensemble);
@@ -1223,15 +1225,16 @@ export default function App() {
               </div>
             </>
           )}
-          {sheet === RECORD && <StudiesSheet onOpenEnsemble={(id) => void openEnsemble(id)} draftRequest={draftRequest} runs={runs} open={study} onOpen={setStudy} onLoadRun={(r) => { loadRun(r); setSheet(0); }}
+          {sheet === RECORD && <StudiesSheet genie={me?.genie ? { url: me.genie_url } : null} onOpenEnsemble={(id) => void openEnsemble(id)} draftRequest={draftRequest} runs={runs} open={study} onOpen={setStudy} onLoadRun={(r) => { loadRun(r); setSheet(0); }}
             register={<RegisterSheet runs={runs} me={me} onLoadRun={(r) => { loadRun(r); setSheet(0); }} onRefresh={refreshFiles} onOpenStudy={setStudy} />}
             ensembles={<EnsemblesTable me={me} onOpen={(id) => void openEnsemble(id)} onOpenStudy={setStudy} />} />}
+          {sheet === OPS && <OperationsSheet genieUrl={me?.genie ? me.genie_url : undefined} onShow={(runId, bore) => show({ run_id: runId, bore })} />}
           {sheet === ABOUT && <NotesSheet me={me} />}
         </div>
       </div>
       <Agent inbox={inbox} prefill={prefill} openThread={openThread} onFilesChanged={refreshUserFiles} resizer={<div className="ag-resize" role="separator" aria-orientation="vertical" aria-label="Resize the agent panel" tabIndex={0}
           title="Drag to resize · double-click to reset" {...agentPanel.handle} />}
-        collapsed={agentHidden} onToggle={toggleAgent} study={sheet === RECORD && study !== ALL_RUNS && study !== ALL_ENSEMBLES ? study : null} onFiled={refreshFiles}
+        collapsed={agentHidden} onToggle={toggleAgent} study={sheet === RECORD && study !== ALL_RUNS && study !== ALL_ENSEMBLES && study !== ASK_GENIE ? study : null} onFiled={refreshFiles}
         context={agentContext} follow={follow} setFollow={setFollow} shownRun={shownRun} onRunFiled={(id) => follow && openAgentRun(id, true)} onActivity={onActivity}
         links={{
           onOpenRun: (id) => openAgentRun(id, false),

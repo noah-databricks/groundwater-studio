@@ -1,0 +1,110 @@
+Setting up the installer's Python environment (once)...
+Installing Groundwater Studio into https://<workspace> as <user>
+
+> SQL warehouse
+  SQL Warehouse (<id>)
+
+> Unity Catalog schema and volumes
+  <catalog>.gw_submit with volumes landing, mf6_bin, model_runs, workspace, agent_state
+
+> MODFLOW and PEST++ executables
+  12 uploaded, the rest already there
+
+> Sample district data and example models
+  raw landing files: 53 uploaded, the rest already there (telemetry CSVs, weather JSON lines, the bore register, model geometry)
+  example models in workspace/models/
+
+> Tables, column masks and the agent's Python sandbox
+  output tables ready, column mask and `<catalog>`.`gw_submit`.modflow_sandbox created
+
+> Lakebase project for agent threads and the Operations sheet
+  creating projects/gws-submit (a minute or two)
+  projects/gws-submit/branches/production
+
+> Chat models for the agent (Unity AI Gateway)
+  databricks-claude-sonnet-5-5, databricks-claude-opus-5-5, databricks-gpt-5-5
+
+> App configuration
+  app/app.yaml and resources/app.yml written
+
+> MODFLOW OS package (for agent sandboxes and job steps)
+  /Volumes/<catalog>/gw_submit/mf6_bin/modflow-os/app-0abb424577bb.tar.gz
+
+> Deploying the bundle (pipeline, jobs, experiment, app)
+Uploading bundle files to /Workspace/Users/<user>/.bundle/groundwater-studio/default/files...
+Updated experiments.studio
+Updated jobs.modflow_agent
+Updated jobs.modflow_scenario
+Updated jobs.modflow_ensemble
+Created jobs.ops_sync
+Created pipelines.district_ingest
+Created jobs.outlook
+Recreated apps.groundwater_studio
+Files: 122 uploaded, 2 deleted
+Resources: 4 created, 4 changed, 1 deleted, 0 unchanged
+
+> Lakeflow pipeline: ingest the landing files (bronze, silver inputs with expectations, gold outlook)
+  inputs built in 76 s (4800 grid cells); pipeline https://<workspace>/pipelines/<uuid>
+
+> Lakebase synced tables for the Operations sheet
+  <catalog>.gw_submit.ops_outlook_bore_risk -> Postgres gw_submit.ops_outlook_bore_risk
+  <catalog>.gw_submit.ops_outlook_reach_seepage -> Postgres gw_submit.ops_outlook_reach_seepage
+
+> Genie Agent
+  created Groundwater Studio: sample district (gws-submit)
+  https://<workspace>/genie/rooms/01f1ccf3a967178287c4d79ddf9bf38f
+Uploading bundle files to /Workspace/Users/<user>/.bundle/groundwater-studio/default/files...
+Files: 2 uploaded, 0 deleted
+Resources: 0 created, 0 changed, 0 deleted, 8 unchanged
+
+> Publishing the outlook to Lakebase and granting the app read access (ops-sync job)
+  success
+
+> Starting the app (the first start installs its dependencies: 3 to 6 minutes)
+✓ Getting the status of the app gws-submit
+✓ App is in UNAVAILABLE state
+✓ App compute is in STOPPED state
+✓ Starting the app gws-submit
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is starting...
+✓ App is started!
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Preparing source code for new app deployment.
+✓ Downloading source code from /Workspace/Users/<uuid>/src/01f1ccf458a119958cd9162968db8bb0
+✓ Installing packages...
+✓ Installing packages...
+✓ Installing packages...
+✓ App started successfully
+You can access the app at https://<app>
+
+Groundwater Studio is running:
+
+  https://<app>
+
+Data:    <catalog>.gw_submit (synthetic sample district, run records, volumes)
+Models:  workspace/models has the sample district, a 3-layer pumping test and the public Freyberg benchmark
+Agent:   databricks-claude-sonnet-5-5, databricks-claude-opus-5-5, databricks-gpt-5-5; threads in Lakebase projects/gws-submit/branches/production
+Ingest:  drop new telemetry in /Volumes/<catalog>/gw_submit/landing/telemetry/ and the outlook job runs the whole chain
+Genie:   https://<workspace>/genie/rooms/01f1ccf3a967178287c4d79ddf9bf38f
+
+Only you can use it so far. To add your team, rerun with --share-with <group>.
+exit 0

@@ -1,0 +1,47 @@
+{
+  "mlflow_runs": 54,
+  "agent": {
+    "tools": 8,
+    "asked_genie": true,
+    "status": "idle"
+  },
+  "outlook": {
+    "trigger": "FILE_ARRIVAL",
+    "state": "SUCCESS"
+  },
+  "lakebase": {
+    "available": true,
+    "bores": 60,
+    "note_written": true
+  },
+  "genie": {
+    "benchmarks": 8,
+    "answered": 8
+  },
+  "pipeline": {
+    "flows": 16,
+    "dropped": 17
+  },
+  "scenario": {
+    "area_within_2m_pct": {
+      "value": 12.7,
+      "baseline": 15.0,
+      "change": -2.3
+    },
+    "canal_seepage_gl": {
+      "value": 18.58,
+      "baseline": 20.38,
+      "change": -1.79
+    }
+  },
+  "ensemble": {
+    "status": "SUCCEEDED",
+    "n_realizations": 32,
+    "n_ok": 32,
+    "n_behavioural": 22,
+    "runtime_s": 76.6812310218811,
+    "p10_pct_area_dtw_lt_2m": 9.666666666666666,
+    "mean_pct_area_dtw_lt_2m": 13.41710336024969,
+    "p90_pct_area_dtw_lt_2m": 16.25
+  }
+}

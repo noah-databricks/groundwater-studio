@@ -1,0 +1,213 @@
+{
+  "pipeline": "gws-submit-district-ingest",
+  "updates": [
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "JOB_TASK",
+      "creation_time": "<id>"
+    },
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "JOB_TASK",
+      "creation_time": "<id>"
+    },
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "API_CALL",
+      "creation_time": "<id>"
+    },
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "JOB_TASK",
+      "creation_time": "<id>"
+    },
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "JOB_TASK",
+      "creation_time": "<id>"
+    },
+    {
+      "update_id": "<uuid>",
+      "state": "COMPLETED",
+      "cause": "API_CALL",
+      "creation_time": "<id>"
+    }
+  ],
+  "latest_flow_results": [
+    {
+      "flow": "<catalog>.gw_submit.bore_extractions_monthly",
+      "completed": "2026-10-21T02:38:37.982Z",
+      "output_rows": "288",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.bore_water_levels",
+      "completed": "2026-10-21T02:38:37.936Z",
+      "output_rows": "440",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.outlook_bore_risk",
+      "completed": "2026-10-21T02:38:37.624Z",
+      "output_rows": "60",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.extractions_checked",
+      "completed": "2026-10-21T02:38:19.606Z",
+      "output_rows": "288",
+      "dropped_records": "2",
+      "expectations": [
+        {
+          "name": "non_negative",
+          "dataset": "<catalog>.gw_submit.extractions_checked",
+          "passed_records": 289,
+          "failed_records": 1
+        },
+        {
+          "name": "bore_in_register",
+          "dataset": "<catalog>.gw_submit.extractions_checked",
+          "passed_records": 289,
+          "failed_records": 1
+        }
+      ]
+    },
+    {
+      "flow": "<catalog>.gw_submit.bore_levels_checked",
+      "completed": "2026-10-21T02:38:19.569Z",
+      "output_rows": "440",
+      "dropped_records": "14",
+      "expectations": [
+        {
+          "name": "bore_in_register",
+          "dataset": "<catalog>.gw_submit.bore_levels_checked",
+          "passed_records": 446,
+          "failed_records": 8
+        },
+        {
+          "name": "level_plausible",
+          "dataset": "<catalog>.gw_submit.bore_levels_checked",
+          "passed_records": 448,
+          "failed_records": 6
+        },
+        {
+          "name": "bore_id_present",
+          "dataset": "<catalog>.gw_submit.bore_levels_checked",
+          "passed_records": 450,
+          "failed_records": 4
+        }
+      ]
+    },
+    {
+      "flow": "<catalog>.gw_submit.boundary_cells",
+      "completed": "2026-10-21T02:38:19.359Z",
+      "output_rows": "363",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.aquifer_cells",
+      "completed": "2026-10-21T02:38:19.290Z",
+      "output_rows": "4800",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.weather_monthly",
+      "completed": "2026-10-21T02:38:14.375Z",
+      "output_rows": "48",
+      "dropped_records": "1",
+      "expectations": [
+        {
+          "name": "et0_non_negative",
+          "dataset": "<catalog>.gw_submit.weather_monthly",
+          "passed_records": 48,
+          "failed_records": 1
+        },
+        {
+          "name": "rainfall_non_negative",
+          "dataset": "<catalog>.gw_submit.weather_monthly",
+          "passed_records": 49,
+          "failed_records": 0
+        }
+      ]
+    },
+    {
+      "flow": "<catalog>.gw_submit.bores",
+      "completed": "2026-10-21T02:38:14.016Z",
+      "output_rows": "32",
+      "dropped_records": "0",
+      "expectations": [
+        {
+          "name": "known_type",
+          "dataset": "<catalog>.gw_submit.bores",
+          "passed_records": 32,
+          "failed_records": 0
+        },
+        {
+          "name": "bore_id_present",
+          "dataset": "<catalog>.gw_submit.bores",
+          "passed_records": 32,
+          "failed_records": 0
+        }
+      ]
+    },
+    {
+      "flow": "<catalog>.gw_submit.outlook_reach_seepage",
+      "completed": "2026-10-21T02:38:13.624Z",
+      "output_rows": "30",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_aquifer_cells",
+      "completed": "2026-10-21T02:38:02.480Z",
+      "output_rows": "4800",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_boundary_cells",
+      "completed": "2026-10-21T02:38:02.448Z",
+      "output_rows": "363",
+      "dropped_records": "0",
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_weather",
+      "completed": "2026-10-21T02:37:49.335Z",
+      "output_rows": null,
+      "dropped_records": null,
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_bores",
+      "completed": "2026-10-21T02:37:49.324Z",
+      "output_rows": null,
+      "dropped_records": null,
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_bore_levels",
+      "completed": "2026-10-21T02:37:49.310Z",
+      "output_rows": null,
+      "dropped_records": null,
+      "expectations": null
+    },
+    {
+      "flow": "<catalog>.gw_submit.raw_extractions",
+      "completed": "2026-10-21T02:37:49.242Z",
+      "output_rows": null,
+      "dropped_records": null,
+      "expectations": null
+    }
+  ]
+}

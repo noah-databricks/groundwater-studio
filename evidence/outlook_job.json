@@ -1,0 +1,44 @@
+{
+  "job": "gws-submit-seasonal-outlook",
+  "trigger": "FILE_ARRIVAL",
+  "triggered_by_file": "/Volumes/<catalog>/gw_submit/landing/telemetry/bore_levels/levels_2026-07_20261021T0232.csv",
+  "state": "SUCCESS",
+  "duration_s": 421,
+  "tasks": [
+    {
+      "task": "dry_year",
+      "state": "SUCCESS",
+      "duration_s": 56
+    },
+    {
+      "task": "lakebase_sync",
+      "state": "SUCCESS",
+      "duration_s": 102
+    },
+    {
+      "task": "wet_year",
+      "state": "SUCCESS",
+      "duration_s": 58
+    },
+    {
+      "task": "briefing",
+      "state": "SUCCESS",
+      "duration_s": 249
+    },
+    {
+      "task": "ingest",
+      "state": "SUCCESS",
+      "duration_s": 114
+    },
+    {
+      "task": "average_year",
+      "state": "SUCCESS",
+      "duration_s": 58
+    },
+    {
+      "task": "publish",
+      "state": "SUCCESS",
+      "duration_s": 103
+    }
+  ]
+}

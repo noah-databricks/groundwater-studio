@@ -39,8 +39,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 import buildkit
+import genie as genie_api
 import gwmodel
 import mf6files
+import ops
 
 log = logging.getLogger("studio")
 logging.basicConfig(level=logging.INFO)
@@ -583,6 +585,7 @@ def me(request: Request):
             "mf6_install_s": state.get("mf6_install_s"), "mf6_error": state["mf6_error"],
             "host": cfg.host, "catalog": CATALOG, "schema": SCHEMA, "job_id": JOB_ID, "experiment_id": EXPERIMENT_ID,
             "scenario_job_id": SCENARIO_JOB_ID,
+            "genie": genie_api.configured(), "genie_url": genie_api.space_url(cfg.host), "ops": ops.available(),
             "cpus": os.cpu_count()}
 
 
@@ -2875,6 +2878,70 @@ async def api_finding(study_id: str, f: FindingIn, request: Request):
 @app.post("/api/v1/studies/{study_id}/conclude")
 async def api_conclude(study_id: str, c: ConcludeIn, request: Request):
     return await _off(conclude_study, request, study_id, c.conclusion, c.status)
+
+
+# ---------------------------------------------------------------- Genie Agent + operations (Lakebase)
+class GenieAsk(BaseModel):
+    question: str
+    conversation_id: str | None = None
+    wait_s: float = 25
+
+
+def genie_ask(request: Request, question: str, conversation_id: str | None = None, wait_s: float = 40) -> dict:
+    """Ask the install's Genie Agent as the caller; the answer, Genie's SQL and the first rows, or a pending handle."""
+    if not genie_api.configured():
+        raise HTTPException(404, "No Genie Agent is configured for this install")
+    try:
+        return genie_api.ask(user_client(request), question, conversation_id, wait_s)
+    except HTTPException:
+        raise
+    except Exception as e:
+        msg = str(e)
+        raise HTTPException(403 if "permission" in msg.lower() or "scope" in msg.lower() else 502, f"Genie: {msg[:400]}")
+
+
+def genie_poll(request: Request, conversation_id: str, message_id: str, wait_s: float = 40) -> dict:
+    if not genie_api.configured():
+        raise HTTPException(404, "No Genie Agent is configured for this install")
+    try:
+        return genie_api.poll(user_client(request), conversation_id, message_id, wait_s)
+    except Exception as e:
+        raise HTTPException(502, f"Genie: {str(e)[:400]}")
+
+
+@app.post("/api/genie/ask")
+async def api_genie_ask(req: GenieAsk, request: Request):
+    return await asyncio.get_running_loop().run_in_executor(None, genie_ask, request, req.question, req.conversation_id, min(req.wait_s, 50))
+
+
+@app.get("/api/genie/{conversation_id}/{message_id}")
+async def api_genie_poll(conversation_id: str, message_id: str, request: Request, wait_s: float = 20):
+    return await asyncio.get_running_loop().run_in_executor(None, genie_poll, request, conversation_id, message_id, min(wait_s, 50))
+
+
+class FieldNote(BaseModel):
+    bore_id: str
+    season: str | None = None
+    status: Literal["noted", "acknowledged", "inspect", "resolved"] = "noted"
+    note: str
+
+
+@app.get("/api/ops/outlook")
+async def api_ops_outlook():
+    try:
+        return await asyncio.get_running_loop().run_in_executor(None, ops.outlook)
+    except Exception as e:
+        return {"available": False, "reason": f"Lakebase: {str(e).splitlines()[0][:300]}"}
+
+
+@app.post("/api/ops/notes")
+async def api_ops_note(note: FieldNote, request: Request):
+    if not ops.available():
+        raise HTTPException(404, "Lakebase is not configured for this install")
+    if not note.note.strip():
+        raise HTTPException(400, "Write a note")
+    return await asyncio.get_running_loop().run_in_executor(
+        None, ops.add_note, note.bore_id, note.season, note.status, note.note.strip()[:2000], user_email(request))
 
 
 import mcp_server  # noqa: E402  (tools call the functions above)

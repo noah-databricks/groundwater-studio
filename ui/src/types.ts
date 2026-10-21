@@ -96,7 +96,21 @@ export type Inspect = {
 export type Me = {
   email: string; obo: boolean; platform: string; mf6: boolean; mf6_version?: string; mf6_error?: string | null;
   host: string; catalog: string; schema: string; job_id: number; experiment_id: string; cpus: number; scenario_job_id?: number;
+  genie?: boolean; genie_url?: string; ops?: boolean;
 };
+
+/** A Genie Agent answer: its text, the SQL Genie wrote and ran as the caller, and the first rows. */
+export type GenieAnswer = {
+  conversation_id: string; message_id: string; status: "pending" | "completed" | "failed" | "cancelled" | string; question?: string;
+  text?: string; sql?: string; query_description?: string; columns?: string[]; rows?: (string | null)[][]; row_count?: number;
+  truncated?: boolean; suggested_questions?: string[]; error?: string; rows_error?: string;
+};
+
+export type OutlookBore = { season: string; bore_id: string; risk: "high" | "elevated" | "normal"; min_depth_m: number; final_depth_m: number;
+  months_within_2m: number; run_id: string; run_label: string; run_at: string };
+export type OutlookReach = { season: string; reach: string; seepage_ml: number; lined: boolean; seepage_rank: number; run_id: string; run_label: string; run_at: string };
+export type FieldNote = { note_id: number; bore_id: string; season: string | null; status: string; note: string; author: string; created_at: string };
+export type Outlook = { available: boolean; reason?: string; schema?: string; bores: OutlookBore[]; reaches: OutlookReach[]; notes: FieldNote[] };
 
 export type PersistStatus = {
   done?: boolean;

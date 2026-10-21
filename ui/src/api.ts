@@ -17,6 +17,13 @@ const pending = new Map<string, string>();  // chunked uploads waiting on their 
 
 export const api = {
   me: () => req<Me>("/api/me"),
+  genieAsk: (question: string, conversation_id: string | null = null) =>
+    req<import("./types").GenieAnswer>("/api/genie/ask", { method: "POST", body: JSON.stringify({ question, conversation_id, wait_s: 25 }) }),
+  geniePoll: (conversation_id: string, message_id: string) =>
+    req<import("./types").GenieAnswer>(`/api/genie/${conversation_id}/${message_id}?wait_s=20`),
+  outlook: () => req<import("./types").Outlook>("/api/ops/outlook"),
+  addNote: (bore_id: string, season: string | null, status: string, note: string) =>
+    req<{ note_id: number; created_at: string }>("/api/ops/notes", { method: "POST", body: JSON.stringify({ bore_id, season, status, note }) }),
   model: () => req<ModelInfo>("/api/model"),
   run: (scenario: Scenario, label: string, persist: boolean, ref: { name: string; version: number } | null = null) =>
     req<RunResult>("/api/run", { method: "POST", body: JSON.stringify({ scenario, label, persist, ref }) }),

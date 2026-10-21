@@ -1,0 +1,170 @@
+{
+  "request": "POST /api/v1/runs  {\"scenario\": {\"line_reaches\": [\"MC-05\"]}, \"label\": \"Evidence: line MC-05\"}",
+  "baseline": {
+    "run_id": "9aa788c3b73c",
+    "kpis": {
+      "area_dtw_lt_2m_pct": {
+        "value": 15.0,
+        "baseline": 15.0,
+        "change": 0.0
+      },
+      "median_dtw_m": {
+        "value": 2.52,
+        "baseline": 2.52,
+        "change": 0.0
+      },
+      "canal_seepage_gl": {
+        "value": 20.38,
+        "baseline": 20.38,
+        "change": 0.0
+      },
+      "bore_extraction_gl": {
+        "value": 13.78,
+        "baseline": 13.78,
+        "change": 0.0
+      },
+      "recharge_gl": {
+        "value": 24.43,
+        "baseline": 24.43,
+        "change": 0.0
+      },
+      "groundwater_et_gl": {
+        "value": 13.7,
+        "baseline": 13.7,
+        "change": 0.0
+      },
+      "fit_rmse_m": {
+        "value": 0.12,
+        "baseline": 0.12,
+        "change": 0.0
+      }
+    },
+    "water_table_change_m": {
+      "mean": 0.0,
+      "max_rise": 0.0,
+      "max_fall": 0.0
+    },
+    "reaches_changed": {},
+    "solver": {
+      "max_discrepancy_pct": 0.0,
+      "run_s": 0.59
+    },
+    "persisted": true,
+    "fidelity": {
+      "refine": 1,
+      "sublayers": 1,
+      "nstp": 2,
+      "solver": "standard",
+      "cells": 4800,
+      "time_steps": 49,
+      "cell_m": 250.0,
+      "estimate_s": 0.7
+    },
+    "description": "the calibrated baseline",
+    "scenario_ref": null
+  },
+  "line_mc05": {
+    "run_id": "4afb83f01fbe",
+    "kpis": {
+      "area_dtw_lt_2m_pct": {
+        "value": 12.7,
+        "baseline": 15.0,
+        "change": -2.3
+      },
+      "median_dtw_m": {
+        "value": 2.58,
+        "baseline": 2.52,
+        "change": 0.06
+      },
+      "canal_seepage_gl": {
+        "value": 18.58,
+        "baseline": 20.38,
+        "change": -1.79
+      },
+      "bore_extraction_gl": {
+        "value": 13.78,
+        "baseline": 13.78,
+        "change": 0.0
+      },
+      "recharge_gl": {
+        "value": 24.43,
+        "baseline": 24.43,
+        "change": 0.0
+      },
+      "groundwater_et_gl": {
+        "value": 12.12,
+        "baseline": 13.7,
+        "change": -1.57
+      },
+      "fit_rmse_m": {
+        "value": 0.171,
+        "baseline": 0.12,
+        "change": 0.051
+      }
+    },
+    "water_table_change_m": {
+      "mean": 0.07,
+      "max_rise": 0.0,
+      "max_fall": 0.65
+    },
+    "reaches_changed": {
+      "MC-04": {
+        "ml": 2133,
+        "baseline_ml": 1914
+      },
+      "MC-05": {
+        "ml": 344,
+        "baseline_ml": 2903
+      },
+      "MC-06": {
+        "ml": 2378,
+        "baseline_ml": 2151
+      },
+      "MC-03": {
+        "ml": 1816,
+        "baseline_ml": 1766
+      },
+      "MC-07": {
+        "ml": 1380,
+        "baseline_ml": 1366
+      },
+      "MC-01": {
+        "ml": 1462,
+        "baseline_ml": 1459
+      },
+      "BC-01": {
+        "ml": 2715,
+        "baseline_ml": 2510
+      },
+      "MC-02": {
+        "ml": 1794,
+        "baseline_ml": 1782
+      },
+      "BC-02": {
+        "ml": 1875,
+        "baseline_ml": 1846
+      },
+      "BC-03": {
+        "ml": 2686,
+        "baseline_ml": 2678
+      }
+    },
+    "solver": {
+      "max_discrepancy_pct": 0.0,
+      "run_s": 0.59
+    },
+    "persisted": true,
+    "fidelity": {
+      "refine": 1,
+      "sublayers": 1,
+      "nstp": 2,
+      "solver": "standard",
+      "cells": 4800,
+      "time_steps": 49,
+      "cell_m": 250.0,
+      "estimate_s": 0.7
+    },
+    "description": "the calibrated baseline, then lined MC-05",
+    "scenario_ref": null
+  }
+}

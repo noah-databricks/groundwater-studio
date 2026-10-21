@@ -1,27 +1,11 @@
 -- Groundwater Studio: Unity Catalog objects. {S} is replaced with <catalog>.<schema> by the installer.
--- Inputs: the synthetic sample district (made-up data, placed nowhere), loaded from the landing volume.
-
-CREATE OR REPLACE TABLE {S}.aquifer_cells COMMENT 'MODFLOW grid of the synthetic sample district: one row per layer/row/col cell with geometry and aquifer properties (made-up data, not placed anywhere)'
-AS SELECT * FROM parquet.`{V}/landing/aquifer_cells.parquet`;
-ALTER TABLE {S}.aquifer_cells ALTER COLUMN land_use COMMENT 'rice | pasture | broadacre | horticulture | dryland';
-CREATE OR REPLACE TABLE {S}.bore_extractions_monthly COMMENT 'Metered monthly groundwater extraction per production bore, ML (synthetic)'
-AS SELECT * FROM parquet.`{V}/landing/bore_extractions_monthly.parquet`;
-CREATE OR REPLACE TABLE {S}.bore_water_levels COMMENT 'Observed groundwater levels at monitoring bores, m AHD (synthetic)'
-AS SELECT * FROM parquet.`{V}/landing/bore_water_levels.parquet`;
-CREATE OR REPLACE TABLE {S}.bores COMMENT 'Groundwater bores of the synthetic sample district: licensed production bores (PB-) and monitoring piezometers (OB-). Made-up data. Landholder and licence are masked columns.'
-AS SELECT * FROM parquet.`{V}/landing/bores.parquet`;
-CREATE OR REPLACE TABLE {S}.boundary_cells COMMENT 'Model boundary conditions: river, supply canals, sub-surface drains, regional constant heads (synthetic)'
-AS SELECT * FROM parquet.`{V}/landing/boundary_cells.parquet`;
-ALTER TABLE {S}.boundary_cells ALTER COLUMN reach COMMENT 'Supply-channel asset reach (2 km sections), e.g. MC-03';
-CREATE OR REPLACE TABLE {S}.weather_monthly COMMENT 'Monthly rainfall and reference evapotranspiration (ET0) by weather station, mm (synthetic)'
-AS SELECT * FROM parquet.`{V}/landing/weather_monthly.parquet`;
-
+-- Inputs (aquifer_cells, boundary_cells, bores, bore_extractions_monthly, weather_monthly, bore_water_levels) are not
+-- created here: the Lakeflow pipeline (pipelines/district_ingest.sql) builds them from the raw files in the landing
+-- volume, and applies the column mask below to the landholder and licence columns of bores.
 
 -- Landholder identity and licence numbers are visible only to members of the data stewards group
-CREATE OR REPLACE FUNCTION {S}.mask_restricted(v STRING) RETURN
+CREATE FUNCTION IF NOT EXISTS {S}.mask_restricted(v STRING) RETURN
   CASE WHEN is_account_group_member('{STEWARDS}') OR v IS NULL THEN v ELSE '*** restricted ***' END;
-ALTER TABLE {S}.bores ALTER COLUMN landholder SET MASK {S}.mask_restricted;
-ALTER TABLE {S}.bores ALTER COLUMN licence_no SET MASK {S}.mask_restricted;
 
 -- Outputs written by the app and the jobs (created empty; never dropped by a reinstall)
 CREATE TABLE IF NOT EXISTS {S}.ensemble_bore_bands (

@@ -1,0 +1,289 @@
+{
+  "ensemble_id": "ens-b724afb2dc",
+  "started_via": "MCP tools/call start_ensemble",
+  "result": {
+    "status": "SUCCEEDED",
+    "ensemble_id": "ens-b724afb2dc",
+    "created_at": "2026-10-21T02:43:12Z",
+    "run_by": "<user>",
+    "label": "Evidence: line MC-05 under uncertainty",
+    "job_run_id": "<id>",
+    "n_realizations": 32,
+    "n_ok": 32,
+    "n_behavioural": 22,
+    "rmse_threshold_m": 0.25,
+    "mean_pct_area_dtw_lt_2m": 13.41710336024969,
+    "p90_pct_area_dtw_lt_2m": 16.25,
+    "runtime_s": 76.6812310218811,
+    "mlflow_run_id": "41ddd875edee4079b922c7fa6bb69df6",
+    "study_id": null,
+    "scenario_name": null,
+    "p10_pct_area_dtw_lt_2m": 9.666666666666666,
+    "peak_mean_pct_area_dtw_lt_2m": 17.090159581444375,
+    "varied": {
+      "k": 0.35,
+      "k_by_aquifer": true,
+      "sy": 0.5,
+      "deep_drainage": 0.5,
+      "rain": 0.15
+    },
+    "scenario": {
+      "k_mult": 1.0,
+      "sy": 0.08,
+      "rain_mult": 1.0,
+      "et_mult": 1.0,
+      "rain_recharge_frac": 0.06,
+      "deep_drainage_frac": 0.12,
+      "pumping_mult": 1.0,
+      "canal_lining_pct": 0.0,
+      "lined_reaches": [
+        "MC-05"
+      ],
+      "land_use": [],
+      "extra_bores": [],
+      "drain_lines": []
+    },
+    "area_by_month": [
+      {
+        "month": "steady-state",
+        "mean": 14.18,
+        "p10": 10.5,
+        "p90": 18.04
+      },
+      {
+        "month": "2024-07",
+        "mean": 12.42,
+        "p10": 9.75,
+        "p90": 15.79
+      },
+      {
+        "month": "2024-08",
+        "mean": 16.04,
+        "p10": 12.54,
+        "p90": 18.83
+      },
+      {
+        "month": "2024-09",
+        "mean": 17.05,
+        "p10": 13.25,
+        "p90": 20.04
+      },
+      {
+        "month": "2024-10",
+        "mean": 14.79,
+        "p10": 11.96,
+        "p90": 18.33
+      },
+      {
+        "month": "2024-11",
+        "mean": 12.28,
+        "p10": 9.5,
+        "p90": 16.42
+      },
+      {
+        "month": "2024-12",
+        "mean": 9.75,
+        "p10": 7.12,
+        "p90": 13.79
+      },
+      {
+        "month": "2025-01",
+        "mean": 10.4,
+        "p10": 7.08,
+        "p90": 15.29
+      },
+      {
+        "month": "2025-02",
+        "mean": 9.77,
+        "p10": 6.58,
+        "p90": 14.0
+      },
+      {
+        "month": "2025-03",
+        "mean": 10.34,
+        "p10": 6.83,
+        "p90": 14.12
+      },
+      {
+        "month": "2025-04",
+        "mean": 12.22,
+        "p10": 8.38,
+        "p90": 15.17
+      },
+      {
+        "month": "2025-05",
+        "mean": 15.35,
+        "p10": 10.46,
+        "p90": 18.67
+      },
+      {
+        "month": "2025-06",
+        "mean": 13.08,
+        "p10": 9.67,
+        "p90": 15.67
+      },
+      {
+        "month": "2025-07",
+        "mean": 12.35,
+        "p10": 10.13,
+        "p90": 14.58
+      },
+      {
+        "month": "2025-08",
+        "mean": 14.76,
+        "p10": 12.38,
+        "p90": 16.58
+      },
+      {
+        "month": "2025-09",
+        "mean": 14.9,
+        "p10": 12.29,
+        "p90": 16.67
+      },
+      {
+        "month": "2025-10",
+        "mean": 13.43,
+        "p10": 11.08,
+        "p90": 16.17
+      },
+      {
+        "month": "2025-11",
+        "mean": 11.36,
+        "p10": 9.08,
+        "p90": 14.83
+      },
+      {
+        "month": "2025-12",
+        "mean": 10.29,
+        "p10": 7.33,
+        "p90": 14.29
+      },
+      {
+        "month": "2026-01",
+        "mean": 10.5,
+        "p10": 7.04,
+        "p90": 15.42
+      },
+      {
+        "month": "2026-02",
+        "mean": 10.86,
+        "p10": 6.79,
+        "p90": 15.88
+      },
+      {
+        "month": "2026-03",
+        "mean": 10.98,
+        "p10": 6.75,
+        "p90": 15.17
+      },
+      {
+        "month": "2026-04",
+        "mean": 13.21,
+        "p10": 8.46,
+        "p90": 17.17
+      },
+      {
+        "month": "2026-05",
+        "mean": 15.52,
+        "p10": 10.33,
+        "p90": 18.83
+      },
+      {
+        "month": "2026-06",
+        "mean": 13.42,
+        "p10": 9.67,
+        "p90": 16.25
+      }
+    ],
+    "best_fitting": [
+      {
+        "realization": 5,
+        "rmse_m": 0.114,
+        "k_mult": 1.0,
+        "k_upper": 1.059,
+        "k_lower": 0.741,
+        "sy": 0.0524,
+        "deep_drainage": 0.128,
+        "rain_mult": 1.035,
+        "area_final": 15.17
+      },
+      {
+        "realization": 31,
+        "rmse_m": 0.123,
+        "k_mult": 1.0,
+        "k_upper": 1.665,
+        "k_lower": 0.877,
+        "sy": 0.0807,
+        "deep_drainage": 0.15,
+        "rain_mult": 1.187,
+        "area_final": 16.25
+      },
+      {
+        "realization": 3,
+        "rmse_m": 0.125,
+        "k_mult": 1.0,
+        "k_upper": 0.782,
+        "k_lower": 0.616,
+        "sy": 0.0742,
+        "deep_drainage": 0.103,
+        "rain_mult": 0.897,
+        "area_final": 11.71
+      },
+      {
+        "realization": 4,
+        "rmse_m": 0.127,
+        "k_mult": 1.0,
+        "k_upper": 1.441,
+        "k_lower": 0.891,
+        "sy": 0.0603,
+        "deep_drainage": 0.136,
+        "rain_mult": 0.959,
+        "area_final": 15.25
+      },
+      {
+        "realization": 24,
+        "rmse_m": 0.132,
+        "k_mult": 1.0,
+        "k_upper": 1.622,
+        "k_lower": 0.819,
+        "sy": 0.108,
+        "deep_drainage": 0.149,
+        "rain_mult": 0.989,
+        "area_final": 15.96
+      },
+      {
+        "realization": 6,
+        "rmse_m": 0.137,
+        "k_mult": 1.0,
+        "k_upper": 0.751,
+        "k_lower": 0.781,
+        "sy": 0.0697,
+        "deep_drainage": 0.145,
+        "rain_mult": 1.082,
+        "area_final": 15.0
+      },
+      {
+        "realization": 20,
+        "rmse_m": 0.14,
+        "k_mult": 1.0,
+        "k_upper": 0.605,
+        "k_lower": 0.65,
+        "sy": 0.0924,
+        "deep_drainage": 0.125,
+        "rain_mult": 0.685,
+        "area_final": 13.04
+      },
+      {
+        "realization": 23,
+        "rmse_m": 0.147,
+        "k_mult": 1.0,
+        "k_upper": 0.673,
+        "k_lower": 0.771,
+        "sy": 0.073,
+        "deep_drainage": 0.106,
+        "rain_mult": 1.155,
+        "area_final": 11.67
+      }
+    ]
+  }
+}

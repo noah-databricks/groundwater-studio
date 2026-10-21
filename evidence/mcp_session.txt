@@ -1,0 +1,187 @@
+MCP session against https://<app>/mcp, 2026-10-21 02:41 UTC
+
+initialize -> server {'name': 'MODFLOW OS', 'version': '1.30.0'}
+tools/list -> 53 tools:
+  describe_model, render_map, find_cells, list_scenarios, get_scenario, preview_scenario, save_scenario, run_scenario, run_batch, get_task, list_tasks, estimate_fidelity, get_run, list_runs, compare_runs, start_ensemble, get_ensemble, ask_genie, get_genie_answer, create_study, list_studies, get_study, record_finding, conclude_study, list_models, inspect_model, read_model_file, run_model, write_model, build_model, calibration_parameters, calibrate_model, apply_calibration, convert_model, get_model_build, edit_model, edit_model_file, delete_model, list_ensembles, delete_scenario, show_in_studio, inspect_cell, zone_budget, get_section, list_zones, save_zone, delete_zone, get_run_series, run_python, view_image, list_uploads, read_upload, describe_data
+
+tools/call describe_model ->
+{
+ "grid": {
+  "nrow": 40,
+  "ncol": 60,
+  "nlay": 2,
+  "cell_m": 250.0,
+  "periods": 25,
+  "first_month": "2024-07",
+  "orientation": "row 0 is the north edge, col 0 the west edge"
+ },
+ "parameters": {
+  "k_mult": {
+   "meaning": "Hydraulic conductivity multiplier, both layers",
+   "default": 1.0,
+   "min": 0.1,
+   "max": 10
+  },
+  "sy": {
+   "meaning": "Specific yield of the shallow aquifer",
+   "default": 0.08,
+   "min": 0.01,
+   "max": 0.35
+  },
+  "rain_mult": {
+   "meaning": "Rainfall multiplier (climate)",
+   "default": 1.0,
+   "min": 0,
+   "max": 3
+  },
+  "et_mult": {
+   "meaning": "Reference evapotranspiration multiplier (climate)",
+   "default": 1.0,
+   "min": 0.5,
+   "max": 1.5
+  },
+  "deep_drainage_frac": {
+   "meaning": "Share of applied irrigation water that drains below the root zone",
+   "default": 0.12,
+   "min": 0,
+   "max": 0.5
+  },
+  "pumping_mult": {
+   "meaning": "Multiplier on metered extraction from licensed bores",
+   "default": 1.0,
+   "min": 0,
+   "max": 5
+  },
+  "canal_lining_pct": {
+   "meaning": "Legacy blanket lining, % of channel cells (prefer lined_reaches)",
+   "default": 0,
+   "min": 0,
+   "max": 100
+  }
+ },
+ "crops": {
+  "rice": {
+   "label": "Rice",
+   "water": 1.6,
+   "drain": 2.2,
+   "baseline_ha": 1844
+  },
+  "pasture": {
+   "label": "Pasture",
+   "water": 1.1,
+   "drain": 1.4,
+   "baseline_ha": 775
+  },
+  "broadacre": {
+   "label": "Row crops",
+   "water": 1.0,
+   "drain": 1.0,
+   "baseline_ha": 1656
+  },
+  "horticulture": {
+   "label": "Horticulture",
+   "water": 0.8,
+   "drain": 0.3,
+   "baseline_ha": 1019
+  },
+  "dryland": {
+   "label": "Dryland",
+   "water": 0.0,
+   "drain": 0.0,
+   "baseline_ha": 9706
+  }
+ },
+ "reaches": [
+  {
+   "id": "BC-01",
+   "channel": "Branch Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 2510
+  },
+  {
+   "id": "BC-02",
+   "channel": "Branch Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 1846
+  },
+  {
+   "id": "BC-03",
+   "channel": "Branch Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 2678
+  },
+  {
+   "id": "MC-01",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 1459
+  },
+  {
+   "id": "MC-02",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 1782
+  },
+  {
+   "id": "MC-03",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 1766
+  },
+  {
+   "id": "MC-04",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 1914
+  },
+  {
+   "id": "MC-05",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 2903
+  },
+  {
+   "id": "MC-06",
+   "channel": "Main Canal",
+   "length_km": 2.0,
+   "baseline_seepage_ml": 2151
+  },
+  {
+   "id": "MC-07",
+   "channel": "Main Canal",
+   "length_km": 1.5,
+   "baseline_seepage_ml": 1366
+  }
+ ],
+ "lining_effect": "Lining a reach cuts its seepage by about 90%",
+ "bores": {
+  "production": 12,
+  "monitoring": 20
+ },
+ "baseline": {
+  "pct_area_dtw_lt_2m_final": 14.958,
+  "pct_area_dtw_lt_2m_peak": 17.708,
+  "median_dtw_m": 2.52,
+  "rmse_m": 0.12,
+  "bias_m": 0.056,
+  "n_obs": 420,
+  "canal_seepage_ml": 20375.445,
+  "bore_extraction_ml": 13783.97,
+  "recharge_ml": 24433.27,
+  "gw_et_ml": 13697.719,
+  "interceptor_drain_ml": 0.0
+ },
+ "inputs": {
+  "read_as": "<user>",
+  "digest": "4a516ebca270",
+  "catalog_schema": "<catalog>.gw_submit"
+ }
+}
+
+tools/call start_ensemble {scenario: line MC-05, n: 32} ->
+{
+ "ensemble_id": "ens-b724afb2dc",
+ "job_run_id": <id>,
+ "estimate_s": 206.0,
+ "url": "https://<workspace>/jobs/<id>/runs/<id>"
+}

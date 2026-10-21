@@ -6,9 +6,34 @@ MODFLOW-2005, NWT and USG) against data in Unity Catalog, from a browser. With i
 - open your own models, edit them in a 3D view, and run scenarios in seconds;
 - calibrate with PEST++;
 - run Monte Carlo ensembles on serverless Spark;
-- work with an optional AI agent that uses the same tools.
+- work with an optional AI agent that uses the same tools, including a Genie Agent;
+- ask a Genie Agent about everything on record, in plain language;
+- give operations a seasonal outlook (bores at risk, leakiest reaches), served from Lakebase, that refreshes itself when
+  new telemetry lands.
 
 Every run is recorded in Delta tables and MLflow under the name of whoever ran it.
+
+## The data journey
+
+1. **Lakeflow ingest.** Raw files land in the `landing` volume: monitoring-bore readings and meter reads (CSV per
+   month), weather (JSON lines), the bore register and the model geometry. A Lakeflow Spark Declarative Pipeline
+   (`pipelines/district_ingest.sql`) picks them up with Auto Loader into bronze streaming tables, then builds the model
+   input tables as materialized views, with expectations that drop bad records (logger faults, unknown bores, negative
+   meter reads).
+2. **Unity Catalog governance.** Every table and volume has comments and grants; the landholder and licence columns are
+   masked outside the data stewards group; every read and file from the app and the agent is made as the signed-in user.
+3. **The app.** Groundwater Studio reads the inputs, runs MODFLOW 6 and files every run to Delta, MLflow and a volume.
+   Ensembles fan out on serverless Spark through Lakeflow Jobs.
+4. **Gen AI.** The embedded agent (Omnigent: Claude Agent SDK, Codex or Pi on models through Unity AI Gateway) plans
+   studies, runs scenarios, asks the Genie Agent what is already known, records findings and writes reports.
+5. **Genie Agent.** A Genie space over the inputs, run records, ensembles, studies and the outlook, with instructions,
+   trusted SQL and benchmarks. People ask it from the app's Record sheet; the agent calls it as a tool.
+6. **Lakebase serving.** The pipeline's gold tables (the latest outlook) are synced into Lakebase, and the app's
+   Operations sheet reads them from Postgres and writes field notes back.
+7. **Automation.** When new telemetry lands, the outlook job runs the whole chain: ingest, a dry, an average and a
+   wet-year run, the gold refresh, the Lakebase sync, and an agent briefing filed as a study.
+
+`evidence/` holds the text output of all of this running on a fresh install.
 
 The bundled data is a **synthetic sample district**: a made-up irrigation area, placed nowhere, with invented farms
 (`Farm 01 (synthetic)`), bores (`PB-`, `OB-`), licences (`SYN-WAL-`) and weather stations. It is there to show the
@@ -37,8 +62,9 @@ That's it. It takes about 10 minutes, most of it the app's first start. At the e
 - **Python:** 3.10 or newer on your machine. The installer makes its own virtual environment in `.install/`.
 - **Workspace:** it needs Unity Catalog, Databricks Apps, a serverless SQL warehouse, and user authorization for apps
   (on-behalf-of-user access), which is on by default in current workspaces.
-- **Optional:** Lakebase, which keeps agent threads across app restarts, and Foundation Model APIs / Unity AI Gateway
-  chat models, which power the agent. The installer uses them when it finds them and skips them when it doesn't.
+- **Optional:** Lakebase (agent threads that survive restarts, and the Operations sheet), Genie (the Ask panel and the
+  agent's Genie tools), and Foundation Model APIs / Unity AI Gateway chat models, which power the agent. The installer
+  uses them when it finds them and skips them when it doesn't.
 - **Permissions:** you need to be able to create a schema in the catalog you install into, create an app, and create
   jobs.
 
@@ -62,12 +88,14 @@ and never deletes run records, uploaded models or scenarios.
 
 | In the workspace | |
 |---|---|
-| Schema `<catalog>.groundwater_studio` | sample-district input tables (`aquifer_cells`, `boundary_cells`, `bores`, `bore_extractions_monthly`, `weather_monthly`, `bore_water_levels`), the run record tables (`model_runs`, `run_*`, `ensemble_*`, `scenario_versions`, `studies`, `study_findings`), a column mask and `modflow_sandbox`, the agent's Python sandbox (a Unity Catalog Python function) |
-| Volumes | `workspace` (models, scenarios, uploads, agent outputs, all read and written as the signed-in user), `model_runs` (archived model files per run), `mf6_bin` (executables), `landing` (sample input files), `agent_state` |
+| Schema `<catalog>.groundwater_studio` | bronze streaming tables (`raw_*`), the sample-district input tables built by the pipeline (`aquifer_cells`, `boundary_cells`, `bores`, `bore_extractions_monthly`, `weather_monthly`, `bore_water_levels`), the gold outlook (`outlook_bore_risk`, `outlook_reach_seepage`), the run record tables (`model_runs`, `run_*`, `ensemble_*`, `scenario_versions`, `studies`, `study_findings`), a column mask and `modflow_sandbox`, the agent's Python sandbox (a Unity Catalog Python function) |
+| Lakeflow pipeline | `groundwater-studio-district-ingest`: landing files to bronze, silver and gold, with expectations |
+| Volumes | `workspace` (models, scenarios, uploads, agent outputs, all read and written as the signed-in user), `model_runs` (archived model files per run), `mf6_bin` (executables), `landing` (raw telemetry, weather, the bore register and model geometry), `agent_state` |
 | App `groundwater-studio` | the Studio, plus an MCP server at `<app-url>/mcp` and a REST API at `<app-url>/api/v1` |
-| Jobs | `groundwater-studio-ensemble` (Monte Carlo on serverless Spark), `groundwater-studio-scenario-run` and `groundwater-studio-agent-step` (MODFLOW and the agent as steps in your own jobs) |
+| Jobs | `groundwater-studio-ensemble` (Monte Carlo on serverless Spark), `groundwater-studio-scenario-run` and `groundwater-studio-agent-step` (MODFLOW and the agent as steps in your own jobs), `groundwater-studio-seasonal-outlook` (runs on file arrival in `landing/telemetry/`), `groundwater-studio-ops-sync` (refreshes Lakebase) |
+| Genie Agent | `Groundwater Studio: sample district`, over the inputs, run records and outlook |
 | MLflow experiment | `/Users/<you>/groundwater-studio` |
-| Lakebase project | `groundwater-studio` (agent threads) |
+| Lakebase project | `groundwater-studio`: agent threads, the synced outlook tables (`ops_outlook_bore_risk`, `ops_outlook_reach_seepage` in Postgres schema `groundwater_studio`), and field notes (`studio_ops.field_notes`) |
 
 Example models are placed in the `workspace` volume:
 - `sample-district-baseline.zip`, the sample district as a plain MODFLOW 6 package;
@@ -127,6 +155,9 @@ app/                      FastAPI backend, MCP server, built front end (app/stat
 src/, jobs/               shared model code, the Spark ensemble and the job steps
 ui/                       front-end source (React + three.js; npm install && npm run build writes app/static/dist)
 engines/                  MODFLOW and PEST++ Linux executables (see engines/SOURCES.md)
-data/, examples/          synthetic sample district inputs, example model packages
+data/, examples/          synthetic sample district (tables, and data/landing/ the raw files the pipeline ingests), example model packages
+pipelines/                the Lakeflow pipeline (bronze, silver inputs with expectations, gold outlook)
+evidence/                 text output of the whole journey running on a fresh install
+tools/collect_evidence.py the script that produced evidence/
 docs/                     TECHNICAL.md (identity model, build kit, calibration, agent, jobs) and the architecture diagram
 ```

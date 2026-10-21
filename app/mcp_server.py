@@ -62,6 +62,12 @@ How to work:
    receives full arrays for runs and packages and returns what it writes to OUTPUTS as artifacts. view_image lets
    you see an uploaded image or one of your own figures.
 
+10. ask_genie asks the district's Genie Agent about what is already on record: filed runs and their outcomes,
+   ensembles, studies and findings, the latest seasonal outlook (bores at risk, reach seepage) and the telemetry
+   inputs (bore levels, metered extraction, weather). Use it before planning runs, to find what has already been
+   tested, and to pull figures from the record. It answers as the caller with Genie's SQL and the first rows; quote
+   that SQL in any finding that relies on it. A Genie answer is not a model run: to test a change, run a scenario.
+
 Key outcome: area_dtw_lt_2m_pct, the share of the district with the water table within 2 m of the surface
 (salinity risk). Lower is better. Channel seepage and deep drainage under irrigation are the main sources.
 """
@@ -378,6 +384,21 @@ def mount(app, api) -> FastMCP:
             return {"status": "finished", **row, "varied": cfg.get("vary") or cfg.get("spread"), "scenario": cfg.get("scenario"),
                     "area_by_month": mon, "best_fitting": best}
         return await call(go)
+
+    @mcp.tool(annotations=READ)
+    async def ask_genie(ctx: Context, question: str, conversation_id: str | None = None) -> dict:
+        """Ask the district's Genie Agent a plain-language question about what is already on record: past runs and
+        their outcomes, ensembles, studies and findings, the latest seasonal outlook (monitoring bores at risk, reach
+        seepage) and the telemetry inputs (bore levels, metered extraction, weather). Genie writes and runs the SQL as
+        the caller and returns its answer text, the SQL and up to 50 rows. Pass conversation_id from an earlier answer
+        for a follow-up. Waits up to about 40 s; if Genie is still working it returns status "pending" with a
+        message_id, then call get_genie_answer. Genie never runs MODFLOW: to test a change, use the scenario tools."""
+        return await call(api.genie_ask, caller(ctx), question, conversation_id, 40)
+
+    @mcp.tool(annotations=READ)
+    async def get_genie_answer(ctx: Context, conversation_id: str, message_id: str) -> dict:
+        """Collect a Genie answer that ask_genie returned as pending. Waits up to about 40 s."""
+        return await call(api.genie_poll, caller(ctx), conversation_id, message_id, 40)
 
     @mcp.tool(annotations=WRITE)
     async def create_study(ctx: Context, title: str, question: str) -> dict:
